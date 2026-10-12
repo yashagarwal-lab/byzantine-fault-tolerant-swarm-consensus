@@ -24,8 +24,8 @@ In distributed systems, this is the classic **Byzantine Generals Problem** appli
 ## 2. Why Naive Approaches Fail
 
 1. **Global Least Squares Estimation**: Solving a single multilateration optimization using all six sensors averages the corrupted measurements into the solution. Because two sensors are severely compromised, the resulting position estimate shifts by several kilometers, and all six stations report elevated residuals—making it impossible to distinguish attackers from honest nodes.
-2. **Standard 3-$\sigma$ Residual Rejection**: Sequential outlier elimination relies on honest measurements having significantly smaller residuals than outliers. When multiple nodes collude, their shared errors distort the baseline geometry, often causing an *honest* station to exhibit the highest initial residual, leading to the wrongful ejection of legitimate sensors.
-3. **Simple Majority Voting**: With $N = 6$ nodes and $f = 2$ malicious nodes, the honest nodes form a majority ($4 > 2$). However, without knowing the true emitter emission time $t_0$, time measurements are relative (TDOA). A single compromised reference node can poison every pairwise differential measurement.
+2. **Standard 3-Sigma Residual Rejection ($3\sigma$)**: Sequential outlier elimination relies on honest measurements having significantly smaller residuals than outliers. When multiple nodes collude, their shared errors distort the baseline geometry, often causing an *honest* station to exhibit the highest initial residual, leading to the wrongful ejection of legitimate sensors.
+3. **Simple Majority Voting**: With $N = 6$ nodes and $f = 2$ malicious nodes, the honest nodes form a majority ($4 \gt 2$). However, without knowing the true emitter emission time $t_0$, time measurements are relative (TDOA). A single compromised reference node can poison every pairwise differential measurement.
 
 ---
 
@@ -75,12 +75,16 @@ For each 4-sensor candidate subset $\mathcal{S} \subset \{A, B, C, D, E, F\}$ wi
 
 $$\mathcal{L}_{\mathcal{S}}(\mathbf{p}) = \sum_{i \in \mathcal{S} \setminus \{r\}} \left( \frac{\|\mathbf{p} - \mathbf{s}_i\|_2 - \|\mathbf{p} - \mathbf{s}_r\|_2}{c} - \overline{\Delta \tau}_{i,r} \right)^2$$
 
-We solve for $\hat{\mathbf{p}}_{\mathcal{S}} = \arg\min_{\mathbf{p}} \mathcal{L}_{\mathcal{S}}(\mathbf{p})$ using the Nelder-Mead simplex algorithm. The Root-Mean-Square (RMS) ranging residual is:
+We solve for the optimal position vector using the Nelder-Mead simplex algorithm:
+
+$$\hat{\mathbf{p}}_{\mathcal{S}} = \arg\min_{\mathbf{p}} \mathcal{L}_{\mathcal{S}}(\mathbf{p})$$
+
+The Root-Mean-Square (RMS) ranging residual is:
 
 $$\text{RMS}_{\mathcal{S}} = c \cdot \sqrt{\frac{\mathcal{L}_{\mathcal{S}}(\hat{\mathbf{p}}_{\mathcal{S}})}{|\mathcal{S}| - 1}}$$
 
-- If subset $\mathcal{S}$ contains **even one** compromised node, the geometric constraints are physically unsatisfiable; $\text{RMS}_{\mathcal{S}} \gg 100\,\text{m}$.
-- If subset $\mathcal{S}$ contains **only honest nodes**, the cost function converges to the physical noise floor; $\text{RMS}_{\mathcal{S}} < 1\,\text{m}$.
+- If candidate subset $\mathcal{S}$ contains **even one** compromised node, the geometric constraints are physically unsatisfiable: $\text{RMS}_{\mathcal{S}} \gg 100\,\mathrm{m}$.
+- If candidate subset $\mathcal{S}$ contains **only honest nodes**, the cost function converges to the physical noise floor: $\text{RMS}_{\mathcal{S}} \lt 1\,\mathrm{m}$.
 
 This creates an unmistakable, discrete **error cliff** that proves the Byzantine identity without false positives.
 
@@ -100,7 +104,7 @@ This creates an unmistakable, discrete **error cliff** that proves the Byzantine
 5. **Byzantine Isolation & Truth Extraction**:
    - Find candidate subset with minimum RMS error.
    - The complement set $\mathcal{C} = \{A..F\} \setminus \mathcal{S}^*$ identifies the compromised nodes.
-   - Output optimal emitter Cartesian coordinates $[n^*, e^*]$.
+   - Output optimal emitter Cartesian coordinates `[n*, e*]`.
 
 ---
 
