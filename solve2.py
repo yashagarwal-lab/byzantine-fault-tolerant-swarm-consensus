@@ -3,11 +3,14 @@ import numpy as np
 from scipy.optimize import minimize
 import itertools
 
-sensors = pd.read_csv('sensors.csv')
+import os
+sensors_f = "data/sensors.csv" if os.path.exists("data/sensors.csv") else "sensors.csv"
+sensors = pd.read_csv(sensors_f)
 sensor_pos = {row['sensor']: (row['north_m'], row['east_m']) for _, row in sensors.iterrows()}
 sensor_names = sorted(list(sensor_pos.keys()))
 
-arrivals = pd.read_csv('arrivals.csv')
+arrivals_f = "data/arrivals.csv" if os.path.exists("data/arrivals.csv") else "arrivals.csv"
+arrivals = pd.read_csv(arrivals_f)
 c = 299792458.0
 
 bursts = arrivals.groupby('burst_id')
